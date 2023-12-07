@@ -12,9 +12,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -27,6 +29,7 @@ public class MainActivity2 extends AppCompatActivity {
     String[] libelle, prixVente;
     boolean[] disponible;
     int[] id;
+    byte[][] photo; // Changed to a global variable
     ListView lv;
 
     @Override
@@ -56,7 +59,7 @@ public class MainActivity2 extends AppCompatActivity {
             libelle = new String[cursor.getCount()];
             prixVente = new String[cursor.getCount()];
             disponible = new boolean[cursor.getCount()];
-            byte[][] photo = new byte[cursor.getCount()][];
+            photo = new byte[cursor.getCount()][];
 
             int i = 0;
 
@@ -108,6 +111,7 @@ public class MainActivity2 extends AppCompatActivity {
                 holder = new ViewHolder();
                 holder.txtLibelle = convertView.findViewById(R.id.txt_libelle);
                 holder.txtPrixVente = convertView.findViewById(R.id.txt_prixVente);
+                holder.imgProduct = convertView.findViewById(R.id.imgProduct); // Updated to use an ImageView
                 holder.btnUpdate = convertView.findViewById(R.id.btnUpdate);
                 holder.btnDelete = convertView.findViewById(R.id.btnDelete);
                 holder.cardview = convertView.findViewById(R.id.cardview);
@@ -124,10 +128,19 @@ public class MainActivity2 extends AppCompatActivity {
             holder.txtLibelle.setText(libelle[position]);
             holder.txtPrixVente.setText(prixVente[position]);
 
+            // Load and display the image using Glide
+            if (photo[position] != null) {
+                Glide.with(MainActivity2.this)
+                        .load(photo[position])
+                        .placeholder(R.drawable.placeholder_image)
+                        .into(holder.imgProduct);
+            } else {
+                holder.imgProduct.setImageResource(R.drawable.placeholder_image);
+            }
+
             holder.btnUpdate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    byte[][] photo = new byte[0][];
                     byte[] currentPhoto = photo[position];
 
                     Bundle bundle = new Bundle();
@@ -160,6 +173,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         private class ViewHolder {
             TextView txtLibelle, txtPrixVente;
+            ImageView imgProduct;
             CheckBox cbDisponible;
             ImageButton btnUpdate, btnDelete;
             CardView cardview;
