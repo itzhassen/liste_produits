@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="8dp"
+    android:id="@+id/cardview"
+    app:cardMaxElevation="8dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp">
+
+        <TextView
+            android:visibility="visible"
+            android:id="@+id/txt_libelle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="textlibelle" />
+
+        <TextView
+            android:visibility="visible"
+            android:id="@+id/txt_prixVente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:text="textprixVente" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txt_prixVente"
+            android:orientation="horizontal">
+
+            <!-- Ajoutez des icônes pour la mise à jour et la suppression -->
+            <ImageButton
+                android:background="?android:attr/selectableItemBackground"
+                android:layout_weight="1"
+                android:id="@+id/btnUpdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="Update"/>
+
+            <ImageButton
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/btnDelete"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Delete"/>
+            <CheckBox
+                android:id="@+id/cbDisponible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtPrixVente"
+                android:layout_marginTop="8dp"
+                android:text="Disponible"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
