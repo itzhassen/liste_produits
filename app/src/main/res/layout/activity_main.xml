@@ -60,6 +60,12 @@
         android:layout_height="wrap_content"
         android:text="Ajouter une Image"
         android:layout_marginBottom="16dp"/>
+    <ImageView
+        android:id="@+id/imgPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+    android:layout_gravity="center"/>
 
     <LinearLayout
         android:layout_width="match_parent"

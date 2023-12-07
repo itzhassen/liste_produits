@@ -1,9 +1,9 @@
 package com.example.tpfinal_listeproduits;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,17 +14,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,13 +41,18 @@ public class MainActivity extends AppCompatActivity {
     int id = 0;
     Uri imageUri;
 
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         dBmain = new DBMain(this);
-        findid();
+        imgPreview = findViewById(R.id.imgPreview);  // Assuming imgPreview is the ID of your ImageView
+
+        findids();
         insertData();
         cleardata();
         editdata();
@@ -66,17 +73,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void findids() {
+        libelle = findViewById(R.id.libelle);
+        prixVente = findViewById(R.id.prixVente);
+        disponible = findViewById(R.id.disponible);
+        submit = findViewById(R.id.submit_btn);
+        display = findViewById(R.id.display_btn);
+        edit = findViewById(R.id.edit_btn);
+        btnCaptureImage = findViewById(R.id.btnCaptureImage);
+    }
+
+
     private void showImageDialog() {
-        // Implement your logic here to show a dialog or handle the image source choice
-        // For simplicity, let's use a Toast message
         Toast.makeText(MainActivity.this, "Choose Image Source", Toast.LENGTH_SHORT).show();
-
-        // You can use an AlertDialog or any other UI component to let the user choose between gallery and camera
-        // Handle the chosen option and launch the corresponding intent
-        // For example, you can use an AlertDialog with options "Gallery" and "Camera"
-        // and handle the chosen option in the respective click listeners.
-
-        // For now, let's assume the user chose Camera
         openCamera();
     }
 
@@ -88,36 +97,31 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
 
-        // Continue if the file was successfully created
         if (photoFile != null) {
-            // Get the Uri for the file
             imageUri = FileProvider.getUriForFile(this, "com.example.tpfinal_listeproduits.fileprovider", photoFile);
-            Uri photoUri = FileProvider.getUriForFile(this,
-                    "com.example.tpfinal_listeproduits.fileprovider", photoFile);
-            // Launch the camera intent
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
+
     private String currentPhotoPath;
+
     private File createImageFile() throws IOException {
-        // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File photoFile = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,
+                ".jpg",
+                storageDir
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = photoFile.getAbsolutePath();
         Log.d("FilePath", currentPhotoPath);
         return photoFile;
     }
-
+    private ImageView imgPreview;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -130,6 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 if (data != null && data.getData() != null) {
                     imageUri = data.getData();
                     // Do something with the imageUri
+
+                    // Display the preview
+                    showImagePreview(imageUri);
                 }
             } else if (requestCode == REQUEST_IMAGE_PICK) {
                 // The user chose an image from the gallery
@@ -137,10 +144,24 @@ public class MainActivity extends AppCompatActivity {
                 if (data != null && data.getData() != null) {
                     imageUri = data.getData();
                     // Do something with the imageUri
+
+                    // Display the preview
+                    showImagePreview(imageUri);
                 }
             }
         }
     }
+    private void showImagePreview(Uri imageUri) {
+        imgPreview.setVisibility(View.VISIBLE);
+
+        // Use a placeholder image for testing purposes
+        imgPreview.setImageResource(R.drawable.placeholder_image);
+
+        // For loading the actual image, consider using an image loading library like Glide or Picasso.
+        // Example using Glide:
+        // Glide.with(this).load(imageUri).into(imgPreview);
+    }
+
 
     private void editdata() {
         if (getIntent().getBundleExtra("productData") != null) {
@@ -169,12 +190,15 @@ public class MainActivity extends AppCompatActivity {
                 contentValues.put("libelle", libelle.getText().toString().trim());
                 contentValues.put("prixVente", Double.parseDouble(prixVente.getText().toString().trim()));
                 contentValues.put("disponible", disponible.isChecked() ? 1 : 0);
+
                 if (imageUri != null) {
-                    contentValues.put("imageUri", imageUri.toString()); // Save the imageUri to the database
-                    Log.d(TAG, "Image Uri added to contentValues: " + imageUri.toString());
+                    byte[] photoData = getPhotoDataFromUri(imageUri);
+                    contentValues.put("photo", photoData);
+                    Log.d(TAG, "Photo data added to contentValues");
                 } else {
-                    Log.d(TAG, "Image Uri is null. Not adding to contentValues.");
+                    Log.d(TAG, "Image Uri is null. Photo data not added to contentValues.");
                 }
+
                 long result = dBmain.getWritableDatabase().insert("product_table", null, contentValues);
                 if (result != -1) {
                     Toast.makeText(MainActivity.this, "Successfully inserted", Toast.LENGTH_SHORT).show();
@@ -183,35 +207,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG, "Error inserting data into the database");
                     Toast.makeText(MainActivity.this, "Error inserting data", Toast.LENGTH_SHORT).show();
                 }
-
-
-
-                dBmain.getWritableDatabase().insert("product_table", null, contentValues);
-
-                Toast.makeText(MainActivity.this, "Successfully inserted", Toast.LENGTH_SHORT).show();
-                cleardata();
             }
         });
 
-        edit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put("libelle", libelle.getText().toString().trim());
-                contentValues.put("prixVente", Double.parseDouble(prixVente.getText().toString().trim()));
-                contentValues.put("disponible", disponible.isChecked() ? 1 : 0);
-                contentValues.put("imageUri", imageUri.toString()); // Save the imageUri to the database
-
-                dBmain.getWritableDatabase().update("product_table", contentValues, "id=" + id, null);
-
-                Toast.makeText(MainActivity.this, "Update successful", Toast.LENGTH_SHORT).show();
-                submit.setVisibility(View.VISIBLE);
-                edit.setVisibility(View.GONE);
-                cleardata();
-            }
-        });
-
-        // Other code...
+        // ... (existing code)
 
         display.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,13 +221,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void findid() {
-        libelle = findViewById(R.id.libelle);
-        prixVente = findViewById(R.id.prixVente);
-        disponible = findViewById(R.id.disponible);
-        submit = findViewById(R.id.submit_btn);
-        display = findViewById(R.id.display_btn);
-        edit = findViewById(R.id.edit_btn);
-        btnCaptureImage = findViewById(R.id.btnCaptureImage);
+    private byte[] getPhotoDataFromUri(Uri imageUri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

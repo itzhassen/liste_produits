@@ -16,15 +16,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.button.MaterialButton;
-
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-
 import java.util.Arrays;
 
 public class MainActivity2 extends AppCompatActivity {
-    private static final String TAG = "MainActivity2";
 
     DBMain dBmain;
     SQLiteDatabase sqLiteDatabase;
@@ -70,9 +66,8 @@ public class MainActivity2 extends AppCompatActivity {
                 prixVente[i] = String.valueOf(cursor.getDouble(cursor.getColumnIndex("prixVente")));
                 disponible[i] = Boolean.parseBoolean(String.valueOf(cursor.getInt(cursor.getColumnIndex("disponible")) == 1));
 
-                // Retrieve and log photo data
                 photo[i] = cursor.getBlob(cursor.getColumnIndex("photo"));
-                Log.d(TAG, "Photo for ID " + id[i] + ": " + Arrays.toString(photo[i]));
+                Log.d("MainActivity2", "Photo for ID " + id[i] + ": " + Arrays.toString(photo[i]));
 
                 i++;
             }
@@ -80,7 +75,7 @@ public class MainActivity2 extends AppCompatActivity {
             CustAdapter custAdapter = new CustAdapter();
             lv.setAdapter(custAdapter);
         } else {
-            Log.d(TAG, "No data found in the database");
+            Log.d("MainActivity2", "No data found in the database");
             Toast.makeText(this, "No data found in the database", Toast.LENGTH_SHORT).show();
         }
     }
@@ -122,6 +117,7 @@ public class MainActivity2 extends AppCompatActivity {
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
+
             boolean isDisponible = true;
             holder.cbDisponible.setChecked(isDisponible);
 
@@ -131,10 +127,7 @@ public class MainActivity2 extends AppCompatActivity {
             holder.btnUpdate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Photo array initialization
-                    byte[][] photo = new byte[libelle.length][];  // Change libelle.length to the appropriate size
-
-                    // Retrieve the specific photo for the current position
+                    byte[][] photo = new byte[0][];
                     byte[] currentPhoto = photo[position];
 
                     Bundle bundle = new Bundle();
@@ -142,7 +135,7 @@ public class MainActivity2 extends AppCompatActivity {
                     bundle.putString("libelle", libelle[position]);
                     bundle.putString("prixVente", prixVente[position]);
                     bundle.putString("disponible", String.valueOf(disponible[position]));
-                    bundle.putByteArray("photo", currentPhoto);  // Use the currentPhoto array
+                    bundle.putByteArray("photo", currentPhoto);
 
                     Intent intent = new Intent(MainActivity2.this, MainActivity.class);
                     intent.putExtra("productData", bundle);
@@ -153,7 +146,6 @@ public class MainActivity2 extends AppCompatActivity {
             holder.btnDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Implémenter la fonctionnalité de suppression ici
                     sqLiteDatabase = dBmain.getReadableDatabase();
                     long recRemove = sqLiteDatabase.delete("product_table", "id=" + id[position], null);
                     if (recRemove != -1) {
