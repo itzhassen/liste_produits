@@ -92,7 +92,8 @@ public class MainActivity2 extends AppCompatActivity {
 
             // Update the text color for each ViewHolder
             if (holder != null) {
-                holder.txtLibelle.setTextColor(ContextCompat.getColor(MainActivity2.this, textColorResId));
+                // Change this line to setTextColor method
+                holder.txtLibelle.setTextColor(getResources().getColor(textColorResId));
             }
         }
     }
