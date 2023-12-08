@@ -8,9 +8,19 @@
     tools:context=".MainActivity2"
     android:id="@+id/lay">
 
-
-
-
+    <Spinner
+        android:id="@+id/colorSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:entries="@array/colors_array" />
+    <Button
+        android:id="@+id/modifyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Modifier" />
 
     <ListView
         android:divider="#E6DCCE"
@@ -26,5 +36,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Retournez au page principale"/>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/submitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit"
+        app:layout_constraintTop_toBottomOf="@+id/colorSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </LinearLayout>

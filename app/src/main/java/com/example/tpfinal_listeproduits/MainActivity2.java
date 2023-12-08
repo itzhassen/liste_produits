@@ -1,25 +1,36 @@
 package com.example.tpfinal_listeproduits;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
+
 import java.util.Arrays;
 
 public class MainActivity2 extends AppCompatActivity {
@@ -29,7 +40,7 @@ public class MainActivity2 extends AppCompatActivity {
     String[] libelle, prixVente;
     boolean[] disponible;
     int[] id;
-    byte[][] photo; // Changed to a global variable
+    byte[][] photo;
     ListView lv;
 
     @Override
@@ -40,6 +51,30 @@ public class MainActivity2 extends AppCompatActivity {
         findid();
         displaydata();
 
+        // Set up the color spinner
+        Spinner colorSpinner = findViewById(R.id.colorSpinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.colors_array,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        colorSpinner.setAdapter(adapter);
+
+        // Submit button click listener
+        MaterialButton submitButton = findViewById(R.id.submitButton);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Handle the submission logic, e.g., update preferences
+                String selectedColor = (String) colorSpinner.getSelectedItem();
+                int textColorResId = getTextColorResId(selectedColor);
+                updateProductColors(selectedColor);
+                Toast.makeText(MainActivity2.this, "Changed successfully", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Show button click listener to launch MainActivity
         MaterialButton btnBackToMain = findViewById(R.id.btnBackToMain);
         btnBackToMain.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +83,28 @@ public class MainActivity2 extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+
+
+
+
+    private int getTextColorResId(String textColorKey) {
+        switch (textColorKey) {
+            case "red":
+                return R.color.red;
+            case "blue":
+                return R.color.blue;
+            case "green":
+                return R.color.green;
+            default:
+                return R.color.black;
+        }
+    }
+
+    private void updateProductColors(String selectedColor) {
+        // Logic to update the product colors in the database or adapt as per your requirement
+        // You may need to iterate through your products and update their colors based on the selectedColor
     }
 
     @SuppressLint("Range")
@@ -111,10 +168,9 @@ public class MainActivity2 extends AppCompatActivity {
                 holder = new ViewHolder();
                 holder.txtLibelle = convertView.findViewById(R.id.txt_libelle);
                 holder.txtPrixVente = convertView.findViewById(R.id.txt_prixVente);
-                holder.imgProduct = convertView.findViewById(R.id.imgProduct); // Updated to use an ImageView
+                holder.imgProduct = convertView.findViewById(R.id.imgProduct);
                 holder.btnUpdate = convertView.findViewById(R.id.btnUpdate);
                 holder.btnDelete = convertView.findViewById(R.id.btnDelete);
-                holder.cardview = convertView.findViewById(R.id.cardview);
                 holder.cbDisponible = convertView.findViewById(R.id.cbDisponible);
 
                 convertView.setTag(holder);
@@ -128,7 +184,6 @@ public class MainActivity2 extends AppCompatActivity {
             holder.txtLibelle.setText(libelle[position]);
             holder.txtPrixVente.setText(prixVente[position]);
 
-            // Load and display the image using Glide
             if (photo[position] != null) {
                 Glide.with(MainActivity2.this)
                         .load(photo[position])
@@ -137,6 +192,9 @@ public class MainActivity2 extends AppCompatActivity {
             } else {
                 holder.imgProduct.setImageResource(R.drawable.placeholder_image);
             }
+
+            int colorResId = getTextColorForPosition(position);
+            holder.txtLibelle.setTextColor(ContextCompat.getColor(MainActivity2.this, colorResId));
 
             holder.btnUpdate.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -171,12 +229,35 @@ public class MainActivity2 extends AppCompatActivity {
             return convertView;
         }
 
+        private int getTextColorForPosition(int position) {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity2.this);
+            String textColorKey = preferences.getString("text_color_preference", "red");
+
+            int textColorResId;
+            switch (textColorKey) {
+                case "red":
+                    textColorResId = R.color.red;
+                    break;
+                case "blue":
+                    textColorResId = R.color.blue;
+                    break;
+                case "green":
+                    textColorResId = R.color.green;
+                    break;
+                default:
+                    // Make sure this is a valid color resource ID
+                    textColorResId = R.color.black;
+                    break;
+            }
+
+            return textColorResId;
+        }
+
         private class ViewHolder {
             TextView txtLibelle, txtPrixVente;
             ImageView imgProduct;
             CheckBox cbDisponible;
             ImageButton btnUpdate, btnDelete;
-            CardView cardview;
         }
     }
 }

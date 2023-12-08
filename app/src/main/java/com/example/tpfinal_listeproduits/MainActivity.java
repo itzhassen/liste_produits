@@ -3,7 +3,6 @@ package com.example.tpfinal_listeproduits;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,9 +15,13 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+
+import com.google.android.material.button.MaterialButton;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -48,9 +51,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         dBmain = new DBMain(this);
-        imgPreview = findViewById(R.id.imgPreview);  // Assuming imgPreview is the ID of your ImageView
+        imgPreview = findViewById(R.id.imgPreview);
+        MaterialButton btnPreferences = findViewById(R.id.btnPreferences);
+        btnPreferences.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openPreferencesActivity();
+            }
+            private void openPreferencesActivity() {
+                Intent intent = new Intent(MainActivity.this, PreferencesActivity.class);
+                startActivity(intent);
+            }
+
+        });
+
 
         findids();
         insertData();
@@ -65,10 +80,54 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         btnCaptureImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showImageDialog();
+            }
+        });
+
+        // Add the Update button functionality
+        Button btnUpdate = findViewById(R.id.edit_btn);
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Check if there is data to update
+                if (id != 0) {
+                    updateData();
+                } else {
+                    Toast.makeText(MainActivity.this, "No data to update", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void insertData() {
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("libelle", libelle.getText().toString().trim());
+                contentValues.put("prixVente", Double.parseDouble(prixVente.getText().toString().trim()));
+                contentValues.put("disponible", disponible.isChecked() ? 1 : 0);
+
+                if (imageUri != null) {
+                    byte[] photoData = getPhotoDataFromUri(imageUri);
+                    contentValues.put("photo", photoData);
+                    Log.d(TAG, "Photo data added to contentValues");
+                } else {
+                    Log.d(TAG, "Image Uri is null. Photo data not added to contentValues.");
+                }
+
+                long result = dBmain.getWritableDatabase().insert("product_table", null, contentValues);
+                if (result != -1) {
+                    Toast.makeText(MainActivity.this, "Successfully inserted", Toast.LENGTH_SHORT).show();
+                    cleardata();
+                } else {
+                    Log.e(TAG, "Error inserting data into the database");
+                    Toast.makeText(MainActivity.this, "Error inserting data", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -82,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
         edit = findViewById(R.id.edit_btn);
         btnCaptureImage = findViewById(R.id.btnCaptureImage);
     }
-
 
     private void showImageDialog() {
         Toast.makeText(MainActivity.this, "Choose Image Source", Toast.LENGTH_SHORT).show();
@@ -162,7 +220,6 @@ public class MainActivity extends AppCompatActivity {
         // Glide.with(this).load(imageUri).into(imgPreview);
     }
 
-
     private void editdata() {
         if (getIntent().getBundleExtra("productData") != null) {
             Bundle bundle = getIntent().getBundleExtra("productData");
@@ -182,43 +239,32 @@ public class MainActivity extends AppCompatActivity {
         disponible.setChecked(false);
     }
 
-    private void insertData() {
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put("libelle", libelle.getText().toString().trim());
-                contentValues.put("prixVente", Double.parseDouble(prixVente.getText().toString().trim()));
-                contentValues.put("disponible", disponible.isChecked() ? 1 : 0);
+    // Update the data in the database
+    private void updateData() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("libelle", libelle.getText().toString().trim());
+        contentValues.put("prixVente", Double.parseDouble(prixVente.getText().toString().trim()));
+        contentValues.put("disponible", disponible.isChecked() ? 1 : 0);
 
-                if (imageUri != null) {
-                    byte[] photoData = getPhotoDataFromUri(imageUri);
-                    contentValues.put("photo", photoData);
-                    Log.d(TAG, "Photo data added to contentValues");
-                } else {
-                    Log.d(TAG, "Image Uri is null. Photo data not added to contentValues.");
-                }
+        if (imageUri != null) {
+            byte[] photoData = getPhotoDataFromUri(imageUri);
+            contentValues.put("photo", photoData);
+            Log.d(TAG, "Photo data added to contentValues");
+        } else {
+            Log.d(TAG, "Image Uri is null. Photo data not added to contentValues.");
+        }
 
-                long result = dBmain.getWritableDatabase().insert("product_table", null, contentValues);
-                if (result != -1) {
-                    Toast.makeText(MainActivity.this, "Successfully inserted", Toast.LENGTH_SHORT).show();
-                    cleardata();
-                } else {
-                    Log.e(TAG, "Error inserting data into the database");
-                    Toast.makeText(MainActivity.this, "Error inserting data", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        // ... (existing code)
-
-        display.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
-                startActivity(intent);
-            }
-        });
+        int rowsAffected = sqLiteDatabase.update("product_table", contentValues, "id=" + id, null);
+        if (rowsAffected > 0) {
+            Toast.makeText(MainActivity.this, "Successfully updated", Toast.LENGTH_SHORT).show();
+            cleardata();
+            id = 0; // Reset id after update
+            edit.setVisibility(View.GONE);
+            submit.setVisibility(View.VISIBLE);
+        } else {
+            Log.e(TAG, "Error updating data in the database");
+            Toast.makeText(MainActivity.this, "Error updating data", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private byte[] getPhotoDataFromUri(Uri imageUri) {

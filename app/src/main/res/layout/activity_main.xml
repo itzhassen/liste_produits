@@ -7,17 +7,25 @@
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".MainActivity">
+    <Button
+        android:id="@+id/btnPreferences"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Préférences"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"/>
+
     <ImageView
         android:id="@+id/imageProduits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/produits"
-    android:scaleType="fitCenter"
-    android:adjustViewBounds="true"
-    android:layout_marginBottom="16dp" />
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:layout_marginBottom="16dp" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilLibelle"
+        android:id="@+id/Libelle"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,6 +61,7 @@
         android:text="Disponible"
         android:textSize="16sp"
         android:layout_marginBottom="16dp"/>
+
     <Button
         android:id="@+id/btnCaptureImage"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -60,12 +69,13 @@
         android:layout_height="wrap_content"
         android:text="Ajouter une Image"
         android:layout_marginBottom="16dp"/>
+
     <ImageView
         android:id="@+id/imgPreview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-    android:layout_gravity="center"/>
+        android:layout_gravity="center"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -97,5 +107,6 @@
             android:layout_weight="1"
             android:text="AFFICHER"
             android:layout_marginStart="8dp"/>
+
     </LinearLayout>
 </LinearLayout>

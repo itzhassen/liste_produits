@@ -1,0 +1,17 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- ... Other preferences ... -->
+
+    <ListPreference
+        app:key="color_preference"
+        app:title="Select Color"
+        app:summary="Choose a color for libelle"
+        app:entries="@array/color_names"
+        app:entryValues="@array/color_values"
+        app:defaultValue="black"/>
+
+
+    <!-- ... Other preferences ... -->
+
+</PreferenceScreen>
