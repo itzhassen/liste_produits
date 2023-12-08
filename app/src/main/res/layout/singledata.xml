@@ -31,7 +31,9 @@
             android:layout_below="@+id/imgProduct"
             android:layout_toEndOf="@+id/imgProduct"
             android:gravity="center"
-            android:text="textlibelle" />
+            android:text="textlibelle"
+            android:textColor="@android:color/black" /> <!-- Set a default color -->
+
 
         <TextView
             android:visibility="visible"

@@ -2,16 +2,16 @@
     <!-- Other resources... -->
 
     <array name="color_names">
+        <item>Black</item>
         <item>Red</item>
         <item>Blue</item>
         <item>Green</item>
-        <item>Black</item>
     </array>
     <array name="colors_array">
+        <item>Black</item>
         <item>Red</item>
         <item>Blue</item>
         <item>Green</item>
-        <item>Black</item>
     </array>
 
     <!-- Other resources... -->

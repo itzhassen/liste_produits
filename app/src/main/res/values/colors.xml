@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="color_values">
+        <item>#000000</item> <!-- Black -->
+
         <item>#FF0000</item> <!-- Red -->
         <item>#0000FF</item> <!-- Blue -->
         <item>#00FF00</item><!-- Green -->
-        <item>#000000</item> <!-- Black -->
 
         <!-- Add more colors if needed -->
     </array>
-
+    <color name="black">#000000</color>
     <color name="red">#FF0000</color>
     <color name="blue">#0000FF</color>
     <color name="green">#00FF00</color>
-    <color name="black">#000000</color>
 </resources>

@@ -1,21 +1,17 @@
 package com.example.tpfinal_listeproduits;
 
-import androidx.core.content.res.ResourcesCompat;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -49,30 +45,35 @@ public class MainActivity2 extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         dBmain = new DBMain(this);
         findid();
+
+        // Add this line to initialize the ListView
+        lv = findViewById(R.id.lv);
+
         displaydata();
 
         // Set up the color spinner
         Spinner colorSpinner = findViewById(R.id.colorSpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.colors_array,
-                android.R.layout.simple_spinner_item
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        colorSpinner.setAdapter(adapter);
 
-        // Submit button click listener
-        MaterialButton submitButton = findViewById(R.id.submitButton);
-        submitButton.setOnClickListener(new View.OnClickListener() {
+
+
+
+        // Modifier button click listener
+        Button modifyButton = findViewById(R.id.modifyButton);
+        modifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle the submission logic, e.g., update preferences
-                String selectedColor = (String) colorSpinner.getSelectedItem();
-                int textColorResId = getTextColorResId(selectedColor);
-                updateProductColors(selectedColor);
-                Toast.makeText(MainActivity2.this, "Changed successfully", Toast.LENGTH_SHORT).show();
+                // Handle the modification logic, e.g., update text color
+                int greenColorResId = R.color.green;
+
+                // Update text colors in the list
+                updateTextColors(greenColorResId);
+
+                Toast.makeText(MainActivity2.this, "Modified successfully", Toast.LENGTH_SHORT).show();
             }
         });
+
+
+
 
         // Show button click listener to launch MainActivity
         MaterialButton btnBackToMain = findViewById(R.id.btnBackToMain);
@@ -84,10 +85,23 @@ public class MainActivity2 extends AppCompatActivity {
             }
         });
     }
+    private void updateTextColors(int textColorResId) {
+        for (int i = 0; i < lv.getChildCount(); i++) {
+            View view = lv.getChildAt(i);
+            CustAdapter.ViewHolder holder = (CustAdapter.ViewHolder) view.getTag();
 
-
-
-
+            // Update the text color for each ViewHolder
+            if (holder != null) {
+                holder.txtLibelle.setTextColor(ContextCompat.getColor(MainActivity2.this, textColorResId));
+            }
+        }
+    }
+    private class ViewHolder {
+        TextView txtLibelle, txtPrixVente;
+        ImageView imgProduct;
+        CheckBox cbDisponible;
+        ImageButton btnUpdate, btnDelete;
+    }
 
     private int getTextColorResId(String textColorKey) {
         switch (textColorKey) {
@@ -101,11 +115,66 @@ public class MainActivity2 extends AppCompatActivity {
                 return R.color.black;
         }
     }
+    private int getTextColorForPosition(String selectedColor) {
+        // Use the selected color directly
+        int textColorResId;
+
+        switch (selectedColor) {
+            case "red":
+                textColorResId = R.color.red;
+                break;
+            case "blue":
+                textColorResId = R.color.blue;
+                break;
+            case "green":
+                textColorResId = R.color.green;
+                break;
+            default:
+                textColorResId = R.color.black;
+                break;
+        }
+
+        return textColorResId;
+    }
+
+
+
+
 
     private void updateProductColors(String selectedColor) {
         // Logic to update the product colors in the database or adapt as per your requirement
         // You may need to iterate through your products and update their colors based on the selectedColor
+        int colorResId = getColorResId(selectedColor);
+
+        for (int i = 0; i < libelle.length; i++) {
+            int position = i;
+            int textColorResId = getColorResId(selectedColor);
+            updateTextColorForPosition(position, textColorResId);
+        }
+
+        // Refresh the list after updating colors
+        displaydata();
     }
+    private void updateTextColorForPosition(int position, int textColorResId) {
+        // You may need to adapt this method based on your actual data structure
+        // Update the color of libelle at the given position
+        // For example:
+        // libelle[position].setTextColor(ContextCompat.getColor(MainActivity2.this, textColorResId));
+    }
+
+    private int getColorResId(String colorKey) {
+        switch (colorKey) {
+            case "red":
+                return R.color.red;
+            case "blue":
+                return R.color.blue;
+            case "green":
+                return R.color.green;
+            default:
+                return R.color.black;
+        }
+    }
+
 
     @SuppressLint("Range")
     private void displaydata() {
@@ -157,7 +226,7 @@ public class MainActivity2 extends AppCompatActivity {
 
         @Override
         public long getItemId(int position) {
-            return 0;
+            return position;
         }
 
         @Override
@@ -193,9 +262,6 @@ public class MainActivity2 extends AppCompatActivity {
                 holder.imgProduct.setImageResource(R.drawable.placeholder_image);
             }
 
-            int colorResId = getTextColorForPosition(position);
-            holder.txtLibelle.setTextColor(ContextCompat.getColor(MainActivity2.this, colorResId));
-
             holder.btnUpdate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -226,38 +292,15 @@ public class MainActivity2 extends AppCompatActivity {
                 }
             });
 
+
             return convertView;
         }
 
-        private int getTextColorForPosition(int position) {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity2.this);
-            String textColorKey = preferences.getString("text_color_preference", "red");
-
-            int textColorResId;
-            switch (textColorKey) {
-                case "red":
-                    textColorResId = R.color.red;
-                    break;
-                case "blue":
-                    textColorResId = R.color.blue;
-                    break;
-                case "green":
-                    textColorResId = R.color.green;
-                    break;
-                default:
-                    // Make sure this is a valid color resource ID
-                    textColorResId = R.color.black;
-                    break;
-            }
-
-            return textColorResId;
-        }
-
-        private class ViewHolder {
+        public class ViewHolder {
             TextView txtLibelle, txtPrixVente;
             ImageView imgProduct;
             CheckBox cbDisponible;
             ImageButton btnUpdate, btnDelete;
         }
+        }
     }
-}
