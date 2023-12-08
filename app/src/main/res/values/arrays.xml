@@ -3,14 +3,10 @@
 
     <array name="color_names">
         <item>Black</item>
-        <item>Red</item>
-        <item>Blue</item>
         <item>Green</item>
     </array>
     <array name="colors_array">
         <item>Black</item>
-        <item>Red</item>
-        <item>Blue</item>
         <item>Green</item>
     </array>
 

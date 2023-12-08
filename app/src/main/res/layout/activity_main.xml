@@ -7,22 +7,15 @@
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".MainActivity">
-    <Button
-        android:id="@+id/btnPreferences"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Préférences"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"/>
 
     <ImageView
         android:id="@+id/imageProduits"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/produits"
-        android:scaleType="fitCenter"
+        android:layout_marginBottom="16dp"
         android:adjustViewBounds="true"
-        android:layout_marginBottom="16dp" />
+        android:scaleType="fitCenter"
+        android:src="@drawable/produits" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/Libelle"
@@ -58,7 +51,7 @@
         android:id="@+id/disponible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Disponible"
+        android:text="En Stock"
         android:textSize="16sp"
         android:layout_marginBottom="16dp"/>
 

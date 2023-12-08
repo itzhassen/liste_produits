@@ -53,18 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         dBmain = new DBMain(this);
         imgPreview = findViewById(R.id.imgPreview);
-        MaterialButton btnPreferences = findViewById(R.id.btnPreferences);
-        btnPreferences.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openPreferencesActivity();
-            }
-            private void openPreferencesActivity() {
-                Intent intent = new Intent(MainActivity.this, PreferencesActivity.class);
-                startActivity(intent);
-            }
 
-        });
 
 
         findids();

@@ -95,6 +95,8 @@ public class MainActivity2 extends AppCompatActivity {
                 // Change this line to setTextColor method
                 holder.txtLibelle.setTextColor(getResources().getColor(textColorResId));
             }
+
+
         }
     }
     private class ViewHolder {
